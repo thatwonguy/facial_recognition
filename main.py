@@ -19,13 +19,17 @@ face_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )
 
+# Variables for timer
+capture_interval = 5  # in seconds
+last_capture_time = datetime.now()
+
 
 # Function to capture and save faces
 def capture_face(camera_index=0):
+    global last_capture_time
+
     # Open camera
     cap = cv2.VideoCapture(camera_index)
-    # cap = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
-    # cap = cv2.VideoCapture(camera_index, cv2.CAP_MSMF)
 
     while True:
         ret, frame = cap.read()
@@ -46,18 +50,26 @@ def capture_face(camera_index=0):
             # Get current timestamp
             timestamp = datetime.now()
 
-            # Save face and timestamp to database
-            c.execute(
-                "INSERT INTO faces (timestamp, face) VALUES (?, ?)",
-                (timestamp, cv2.imencode(".jpg", face)[1].tobytes()),
-            )
-            conn.commit()
+            # Check if 5 seconds have passed since last capture
+            if (timestamp - last_capture_time).total_seconds() >= capture_interval:
+                # Save face and timestamp to database
+                c.execute(
+                    "INSERT INTO faces (timestamp, face) VALUES (?, ?)",
+                    (timestamp, cv2.imencode(".jpg", face)[1].tobytes()),
+                )
+                conn.commit()
+                # Update last capture time
+                last_capture_time = timestamp
 
         # Display the frame
         cv2.imshow("Face Detection", frame)
 
-        # Press 'q' to exit
-        if cv2.waitKey(1) & 0xFF == ord("q"):
+        # Check for key press
+        key = cv2.waitKey(1) & 0xFF
+        print("Pressed key:", key)
+
+        # Press 'Esc' to exit
+        if key == 27:  # ASCII code for 'Esc' key
             break
 
     # Release camera and close window
