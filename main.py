@@ -1,5 +1,11 @@
-import cv2
+"""_summary_
+Main Module that allows facial recognition to occur,
+saving the image immediately as recognition occurs
+5 sec thereafter.
+"""
+
 from datetime import datetime
+import cv2
 from sqlalchemy import create_engine, Column, Integer, DateTime, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -10,6 +16,13 @@ Base = declarative_base()
 
 # Define the Face class representing the table structure
 class Face(Base):
+    """_summary_
+    Create database and table with sqalachemy.
+
+    Args:
+        Base (_type_): _description_
+    """
+
     __tablename__ = "faces"
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime)
@@ -38,6 +51,12 @@ first_face_detected = False
 
 # Function to capture and save faces
 def capture_face(camera_index=0):
+    """_summary_
+    Main function capturing and saving image in db.
+
+    Args:
+        camera_index (int, optional): _description_. Defaults to 0.
+    """
     global last_capture_time, first_face_detected
 
     # Open camera
