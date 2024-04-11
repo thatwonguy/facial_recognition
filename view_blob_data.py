@@ -1,22 +1,35 @@
-import sqlite3
+"""_summary_
+Module that views data created by main.py script.
+"""
+
 import cv2
 import numpy as np
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from main import Face
 
-# Connect to SQLite database
-conn = sqlite3.connect("faces.db")
-c = conn.cursor()
+# Create an SQLite engine and bind it to the Base
+engine = create_engine("sqlite:///faces.db")
+
+# Create a Session class bound to the engine
+Session = sessionmaker(bind=engine)
 
 
 # Function to retrieve and display BLOB data
 def view_blob_data():
-    # Retrieve BLOB data from the database
-    c.execute("SELECT * FROM faces")
-    rows = c.fetchall()
+    """_summary_
+    Main function that views data using sqlachemy.
+    """
+    # Create a session
+    session = Session()
 
-    for row in rows:
+    # Retrieve all Face instances from the database
+    faces = session.query(Face).all()
+
+    for face in faces:
         # Extract timestamp and BLOB data
-        timestamp = row[1]
-        face_blob = row[2]
+        timestamp = face.timestamp
+        face_blob = face.face
 
         # Decode BLOB data
         nparr = np.frombuffer(face_blob, np.uint8)
@@ -26,8 +39,8 @@ def view_blob_data():
         cv2.imshow("Face", img)
         cv2.waitKey(0)  # Press any key to continue viewing images
 
-    # Close the database connection
-    conn.close()
+    # Close the session
+    session.close()
     cv2.destroyAllWindows()
 
 
