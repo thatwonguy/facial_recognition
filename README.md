@@ -3,5 +3,5 @@ Foundational groundwork for facial recognition surveillance and security. This a
 
 > [!NOTE]
 > For use on your local machine. 
-
+>
 > Ideally you want to create a virtual environment(venv) for the individual project you are working on and install all the requirements inside the venv after activating it in your terminal to avoid package installation issues with other projects.
